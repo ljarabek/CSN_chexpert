@@ -12,8 +12,10 @@ Main file is main.py;
 
 1. prepare CheXpert and MIMIC datasets in a directory - look at csv's in /data/2Label
 	--> set arguement data_root to the path
+
 2. set the lines 3,4 of the main.py accordingly if you use multiple GPUs. Default is for single-gpu. 
 	!!! Saving plots won't work in multi-gpu mode
+
 3. for information on other arguments, look at main.py or use the help command :)
 
 4. run main.py
@@ -21,6 +23,37 @@ Main file is main.py;
 ## DEBUGGING:
 If you get out of range in pandas iloc method, it is because the labels.npy is not suitable for the dataset. Just delete labels.npy and wait for it to generate a new one.
 
+One more bug is in the .png generation that produces chromatic aberration-like artifacts (blue).
+
 Feel free to report other known bugs.
 
-This is a work in progress :)
+This is a work in progress.
+
+
+CSN converges such that the input to densenet is actually binarized image with per-image learned treshold.
+Currently the training is very unstable, CSN-Densenet best result after 30 epochs:
+ROCAUC for Atelectasis is 0.7397375328083989
+ROCAUC for Cardiomegaly is 0.8258689839572192
+ROCAUC for Consolidation is 0.8818014705882353
+ROCAUC for Edema is 0.8641369047619047
+ROCAUC for Pleural Effusion is 0.8516757246376812
+
+Compared to baseline - just Densenet. Converges and starts overfitting after 4 epochs.:
+ROCAUC for Atelectasis is 0.6762204724409449
+ROCAUC for Cardiomegaly is 0.7776292335115865
+ROCAUC for Consolidation is 0.8880514705882354
+ROCAUC for Edema is 0.8622023809523809
+ROCAUC for Pleural Effusion is 0.8609601449275363
+
+![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert
+/master/images/batch6_epoch_0_val.png)
+
+![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert
+/master/images/batch7_epoch_0_val.png)
+
+![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert
+/master/images/batch8_epoch_0_val.png)
+
+
+
+
