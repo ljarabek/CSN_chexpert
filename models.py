@@ -75,7 +75,7 @@ class CSN_backbone(nn.Module):
             out_hist.hist(np.ravel(out_im[0].cpu().detach().numpy()), bins=30)
             out_hist.set_title(str(out[0].cpu().detach().numpy()))
 
-            plt.savefig(self.visualization_filename)
+            plt.savefig(self.visualization_filename, dpi=300)
         return out_im
 
 

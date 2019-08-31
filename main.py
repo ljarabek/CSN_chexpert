@@ -45,7 +45,11 @@ class BaseRun():
         self.epochs = args.epochs
         self.batch_size = args.batch_size
         self.num_workers = args.num_workers
-        self.model_dir = self.args.save_dir + str(time.strftime('%Y%m%d-%H:%M', time.gmtime())) + "/"
+        if self.args.tag is not None:
+            self.model_dir = self.args.save_dir + "TAG_{}_".format(self.args.tag) + str(
+                time.strftime('%Y%m%d-%H:%M', time.gmtime())) + "/"
+        else:
+            self.model_dir = self.args.save_dir + str(time.strftime('%Y%m%d-%H:%M', time.gmtime())) + "/"
         self.im_dir = self.model_dir + "visualizations/"
         os.makedirs(self.im_dir, exist_ok=True)
         self.train_trainsform = self._init_train_transform()
@@ -258,7 +262,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--train", type=bool, default=False,
                         help="if False, the model is ran on only the validation set")
-    parser.add_argument("--CSN", type=bool, default=True,
+    parser.add_argument("--CSN", type=bool, default=False,
                         help="whether to use CSN or no. If False --> default densenet is used. This was our baseline")
     parser.add_argument("--tag", type=int, default=None,
                         help="makes training per this specified tag with 50:50 positive-negative balanced sampling")
@@ -279,7 +283,7 @@ if __name__ == "__main__":
     parser.add_argument('--resize', type=int, default=480)
     parser.add_argument('--crop_size', type=int, default=448)
     parser.add_argument('--load_model_path',
-                        default=".")  # )"/home/leon/dev/CSN/RUNS/TAG_0/20190828-13:07/best_val.pt")  # "/home/leon/dev/CSN/RUNS/no_CSN/TRAINED/best_val.pt")#"/home/leon/dev/CSN/RUNS/no_CSN/20190827-13:07/best_val.pt")  # "./RUNS/BESTER_RUN_CSN/best_val.pt")  # "best_val.pt")
+                        default="./RUNS/no_CSN/best_val.pt")  # )"/home/leon/dev/CSN/RUNS/TAG_0/20190828-13:07/best_val.pt")  # "/home/leon/dev/CSN/RUNS/no_CSN/TRAINED/best_val.pt")#"/home/leon/dev/CSN/RUNS/no_CSN/20190827-13:07/best_val.pt")  # "./RUNS/BESTER_RUN_CSN/best_val.pt")  # "best_val.pt")
     parser.add_argument('--momentum', default=0.9)
     parser.add_argument('--weight_decay', default=5e-3)
 
