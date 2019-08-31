@@ -45,14 +45,11 @@ ROCAUC for Consolidation is 0.8880514705882354
 ROCAUC for Edema is 0.8622023809523809
 ROCAUC for Pleural Effusion is 0.8609601449275363
 
-![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert
-/master/images/batch6_epoch_0_val.png)
+![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert/master/images/batch6_epoch_0_val.png)
 
-![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert
-/master/images/batch7_epoch_0_val.png)
+![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert/master/images/batch7_epoch_0_val.png)
 
-![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert
-/master/images/batch8_epoch_0_val.png)
+![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert/master/images/batch8_epoch_0_val.png)
 
 
 
