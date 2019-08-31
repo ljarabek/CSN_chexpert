@@ -30,7 +30,7 @@ Feel free to report other known bugs.
 This is a work in progress.
 
 
-#Results
+# Results
 
 CSN converges such that the input to densenet is actually binarized image with per-image learned treshold.
 Currently the training is very unstable, CSN-Densenet best result after 30 epochs:
