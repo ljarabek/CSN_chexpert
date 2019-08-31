@@ -45,6 +45,10 @@ ROCAUC for Consolidation is 0.8880514705882354
 ROCAUC for Edema is 0.8622023809523809
 ROCAUC for Pleural Effusion is 0.8609601449275363
 
+
+Images of results: densenet achieves above results with the bottom left image as input.
+The 2 numbers above the bottom right histogram are beta and gamma (shift and scale) from AdaIN repspectively. Images are binarized, since the AdaIN output is passed through a tanh before being fed into the model.
+
 ![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert/master/images/batch6_epoch_0_val.png)
 
 ![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert/master/images/batch7_epoch_0_val.png)
