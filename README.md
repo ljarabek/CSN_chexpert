@@ -72,4 +72,4 @@ The 2 numbers above the bottom right histogram are beta and gamma (shift and sca
 
 # Other datasets
 
-Experiments were performed on CIFAR100 dataset. There is no improvement on the densenet baseline, even when training CSN with smaller learning rate than densenet for improved stability.
+Experiments were performed on CIFAR100 dataset. CSN was adapted to have per channel outputs (RGB). There is no improvement on the densenet baseline, even when training CSN with smaller learning rate than densenet for improved stability.
