@@ -58,7 +58,7 @@ ROCAUC for Edema is 0.8622023809523809
 
 ROCAUC for Pleural Effusion is 0.8609601449275363
 
-#Images
+# Images
 
 Densenet achieves above results with the bottom left image as input.
 The 2 numbers above the bottom right histogram are beta and gamma (shift and scale) from AdaIN repspectively. Images are binarized, since the AdaIN output is passed through a tanh before being fed into the model.
