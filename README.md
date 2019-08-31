@@ -70,5 +70,6 @@ The 2 numbers above the bottom right histogram are beta and gamma (shift and sca
 ![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert/master/images/batch8_epoch_0_val.png)
 
 
+# Other datasets
 
-
+Experiments were performed on CIFAR100 dataset. There is no improvement on the densenet baseline, even when training CSN with smaller learning rate than densenet for improved stability.
