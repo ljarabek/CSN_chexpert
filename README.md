@@ -30,23 +30,37 @@ Feel free to report other known bugs.
 This is a work in progress.
 
 
+#Results
+
 CSN converges such that the input to densenet is actually binarized image with per-image learned treshold.
 Currently the training is very unstable, CSN-Densenet best result after 30 epochs:
+
 ROCAUC for Atelectasis is 0.7397375328083989
+
 ROCAUC for Cardiomegaly is 0.8258689839572192
+
 ROCAUC for Consolidation is 0.8818014705882353
+
 ROCAUC for Edema is 0.8641369047619047
+
 ROCAUC for Pleural Effusion is 0.8516757246376812
 
-Compared to baseline - just Densenet. Converges and starts overfitting after 4 epochs.:
+
+Compared to baseline - just Densenet. All same settings, except args.CSN = False. Converges and starts overfitting after 4 epochs.:
+
 ROCAUC for Atelectasis is 0.6762204724409449
+
 ROCAUC for Cardiomegaly is 0.7776292335115865
+
 ROCAUC for Consolidation is 0.8880514705882354
+
 ROCAUC for Edema is 0.8622023809523809
+
 ROCAUC for Pleural Effusion is 0.8609601449275363
 
+#Images
 
-Images of results: densenet achieves above results with the bottom left image as input.
+Densenet achieves above results with the bottom left image as input.
 The 2 numbers above the bottom right histogram are beta and gamma (shift and scale) from AdaIN repspectively. Images are binarized, since the AdaIN output is passed through a tanh before being fed into the model.
 
 ![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert/master/images/batch6_epoch_0_val.png)
