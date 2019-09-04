@@ -48,15 +48,15 @@ ROCAUC for Pleural Effusion is 0.8516757246376812
 
 Multichannel version is more stable - the results below are only after the 2nd epoch. Models are from file models_multich.py:
 
-ROCAUC for Atelectasis is 0.74498687664042
+ROCAUC for Atelectasis is 0.8493438320209974
 
-ROCAUC for Cardiomegaly is 0.8731060606060607
+ROCAUC for Cardiomegaly is 0.8695409982174689
 
-ROCAUC for Consolidation is 0.9137867647058824
+ROCAUC for Consolidation is 0.9132352941176471
 
-ROCAUC for Edema is 0.9276785714285715
+ROCAUC for Edema is 0.9171130952380953
 
-ROCAUC for Pleural Effusion is 0.9199501811594203
+ROCAUC for Pleural Effusion is 0.9004755434782609
 
 
 Compared to baseline - just Densenet. All same settings, except args.CSN = False. Converges and starts overfitting after 4 epochs.:
