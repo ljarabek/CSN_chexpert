@@ -83,6 +83,11 @@ The 2 numbers above the bottom right histogram are beta and gamma (shift and sca
 
 ![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert/master/images/batch8_epoch_0_val.png)
 
+Multi-Channel version transformations:
+
+![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert/master/images/batch0_epoch_0_val.png_all.png)
+
+
 
 # Other datasets
 

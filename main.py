@@ -1,7 +1,7 @@
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
-device_ids = [0,1,2]
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+device_ids = [0]
 
 from argparse import ArgumentParser
 import tensorboard
@@ -265,7 +265,7 @@ class CSNrun(BaseRun):
 if __name__ == "__main__":
     parser = ArgumentParser()
 
-    parser.add_argument("--train", type=bool, default=True,
+    parser.add_argument("--train", type=bool, default=False,
                         help="if False, the model is ran on only the validation set")
     parser.add_argument("--CSN", type=bool, default=True,
                         help="whether to use CSN or no. If False --> default densenet is used. This was our baseline")
@@ -273,11 +273,11 @@ if __name__ == "__main__":
 
     parser.add_argument("--tag", type=int, default=None,
                         help="makes training per this specified tag with 50:50 positive-negative balanced sampling")
-    parser.add_argument("--visualize_", type=bool, default=False,
+    parser.add_argument("--visualize_", type=bool, default=True,
                         help="saves plots of a sample image, transformed image and histogram")  # visualize - make False for multiGPU!!
 
     parser.add_argument("--save_dir", default="./RUNS/")
-    parser.add_argument("--batch_size", type=int, default=60)  # ~140 is the max for 4x v100
+    parser.add_argument("--batch_size", type=int, default=5)  # ~140 is the max for 4x v100
     parser.add_argument("--epochs", type=int, default=25)
     parser.add_argument("--learning_rate", default=3e-4)
     parser.add_argument("--data_root", default='/raid/Medical/DX')
@@ -290,7 +290,7 @@ if __name__ == "__main__":
     parser.add_argument('--resize', type=int, default=480)
     parser.add_argument('--crop_size', type=int, default=448)
     parser.add_argument('--load_model_path',
-                        default=".")  # )"/home/leon/dev/CSN/RUNS/TAG_0/20190828-13:07/best_val.pt")  # "/home/leon/dev/CSN/RUNS/no_CSN/TRAINED/best_val.pt")#"/home/leon/dev/CSN/RUNS/no_CSN/20190827-13:07/best_val.pt")  # "./RUNS/BESTER_RUN_CSN/best_val.pt")  # "best_val.pt")
+                        default="./RUNS/EVEN_BESTER/best_val.pt")  # )"/home/leon/dev/CSN/RUNS/TAG_0/20190828-13:07/best_val.pt")  # "/home/leon/dev/CSN/RUNS/no_CSN/TRAINED/best_val.pt")#"/home/leon/dev/CSN/RUNS/no_CSN/20190827-13:07/best_val.pt")  # "./RUNS/BESTER_RUN_CSN/best_val.pt")  # "best_val.pt")
     parser.add_argument('--momentum', default=0.9)
     parser.add_argument('--weight_decay', default=5e-3)
 

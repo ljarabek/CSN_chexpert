@@ -75,13 +75,28 @@ class CSN_backbone(nn.Module):
                 ch /= np.max(ch)
                 im_out[idc] = ch
 
-            out_.imshow(np.moveaxis(im_out, 0, -1))
-            out_.set_title("transformed image")
+            #out_.imshow(np.moveaxis(im_out, 0, -1))
+            indx = np.random.randint(0,im_out.shape[0]-1)
+            out_.imshow(np.array(im_out[indx]), cmap="Greys")
+            out_.set_title("wind %s"%indx)
 
             out_hist.hist(np.ravel(out_im[0].cpu().detach().numpy()), bins=30)
-            out_hist.set_title(str(out[0].cpu().detach().numpy()))
-
+            out_hist.set_title(str([out[0,indx].cpu().detach(), out[0,indx +self.args.multi_channel].cpu().detach()]))
             plt.savefig(self.visualization_filename, dpi=300)
+
+
+            fig, plots  =plt.subplots(3,5)
+
+            for idp, row in enumerate(plots):
+                for idr, plot in enumerate(row):
+                    indx  = idp*5 + idr
+                    plot.imshow(np.array(im_out[indx]), cmap="Greys")
+                    plot.set_title("window %s" % indx)
+
+            plt.savefig(self.visualization_filename +"_all.png", dpi=300)
+
+
+
         return out_im
 
 
