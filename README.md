@@ -86,4 +86,6 @@ The 2 numbers above the bottom right histogram are beta and gamma (shift and sca
 
 # Other datasets
 
-Experiments were performed on CIFAR100 dataset. CSN was adapted to have per channel outputs (RGB). There is no improvement on the densenet baseline, even when training CSN with smaller learning rate than densenet for improved stability. Furhter experiments are being made to improve CIFAR100 performance.
+Experiments were performed on CIFAR100 dataset. CSN was adapted to have per channel outputs (RGB). There is no improvement on the densenet baseline (acccuracy 0.77), the performance is worse with CSN (acccuracy 0.60). We achieve equal performance to baseline when training with 2 optimizers CSN and densenet: the CSN with 5x reduced learning rate compared to the densenet (accuracy 0.77). 
+
+![alt text](https://raw.githubusercontent.com/ljarabek/CSN_chexpert/master/images/epoch_206_batch_5.png)
