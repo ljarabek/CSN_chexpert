@@ -1,7 +1,7 @@
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-device_ids = [0]
+os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
+device_ids = [0,1,2]
 
 from argparse import ArgumentParser
 import tensorboard
@@ -15,7 +15,7 @@ from collections import OrderedDict
 import time
 import torch.nn as nn
 from utils.loss import WeightBCELoss
-from models import CSN_backbone, Classifier
+from models_multich import CSN_backbone, Classifier
 from tqdm import tqdm
 import numpy as np
 from sklearn.metrics import roc_auc_score
@@ -38,6 +38,12 @@ class MyDataParallel(torch.nn.DataParallel):
 class BaseRun():
     def __init__(self, args):
         self.args = args
+
+        if self.args.multi_channel is not None:
+            from models_multich import CSN_backbone, Classifier
+        else:
+            from models import CSN_backbone, Classifier
+
         print("LETS DO THIS!!")
         print("Visualizations don't work on multiple GPUs!!")
         self.params = list()
@@ -253,37 +259,38 @@ class CSNrun(BaseRun):
                                                    roc_auc_score(truths[:, i], preds[:, i], None)))
             except:
                 print("missing values")
-
         return epoch_loss
 
 
 if __name__ == "__main__":
     parser = ArgumentParser()
 
-    parser.add_argument("--train", type=bool, default=False,
+    parser.add_argument("--train", type=bool, default=True,
                         help="if False, the model is ran on only the validation set")
-    parser.add_argument("--CSN", type=bool, default=False,
+    parser.add_argument("--CSN", type=bool, default=True,
                         help="whether to use CSN or no. If False --> default densenet is used. This was our baseline")
+    parser.add_argument("--multi_channel", default=15) # set to int to number of wanted channels >> MUST BE DIVISIBLE BY 3 (RGB!)
+
     parser.add_argument("--tag", type=int, default=None,
                         help="makes training per this specified tag with 50:50 positive-negative balanced sampling")
-    parser.add_argument("--visualize_", type=bool, default=True,
+    parser.add_argument("--visualize_", type=bool, default=False,
                         help="saves plots of a sample image, transformed image and histogram")  # visualize - make False for multiGPU!!
 
     parser.add_argument("--save_dir", default="./RUNS/")
-    parser.add_argument("--batch_size", type=int, default=25)  # ~140 is the max for 4x v100
+    parser.add_argument("--batch_size", type=int, default=60)  # ~140 is the max for 4x v100
     parser.add_argument("--epochs", type=int, default=25)
     parser.add_argument("--learning_rate", default=3e-4)
     parser.add_argument("--data_root", default='/raid/Medical/DX')
     parser.add_argument("--dataset_source", default='./data/2Label/', help="dir of CSVs")
     parser.add_argument("--num_workers", default=15, help="number of workers for dataloader")
     parser.add_argument("--train_csv",
-                        default="2Ltrain_1000sample_Shuffle_Frontal",
+                        default="2Ltrain_Chex&MIMIC_Shuffle_Frontal",
                         help="CSV name")  # 2Ltrain_Chex&MIMIC_Shuffle_Frontal '2Ltrain_1000sample_Shuffle_Frontal'
     parser.add_argument("--test_csv", default='2Lvalid_Frontal')
     parser.add_argument('--resize', type=int, default=480)
     parser.add_argument('--crop_size', type=int, default=448)
     parser.add_argument('--load_model_path',
-                        default="./RUNS/no_CSN/best_val.pt")  # )"/home/leon/dev/CSN/RUNS/TAG_0/20190828-13:07/best_val.pt")  # "/home/leon/dev/CSN/RUNS/no_CSN/TRAINED/best_val.pt")#"/home/leon/dev/CSN/RUNS/no_CSN/20190827-13:07/best_val.pt")  # "./RUNS/BESTER_RUN_CSN/best_val.pt")  # "best_val.pt")
+                        default=".")  # )"/home/leon/dev/CSN/RUNS/TAG_0/20190828-13:07/best_val.pt")  # "/home/leon/dev/CSN/RUNS/no_CSN/TRAINED/best_val.pt")#"/home/leon/dev/CSN/RUNS/no_CSN/20190827-13:07/best_val.pt")  # "./RUNS/BESTER_RUN_CSN/best_val.pt")  # "best_val.pt")
     parser.add_argument('--momentum', default=0.9)
     parser.add_argument('--weight_decay', default=5e-3)
 

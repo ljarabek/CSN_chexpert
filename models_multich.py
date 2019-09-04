@@ -12,8 +12,8 @@ class CSN_backbone(nn.Module):
         super(CSN_backbone, self).__init__()
         self.args = args
 
-        self.backbone = DenseNet(growth_rate=32, block_config=(6, 12, 6, 6), num_init_features=3, bn_size=4,
-                                 drop_rate=0, num_classes=2)
+        self.backbone = DenseNet(growth_rate=32, block_config=(6, 12, 6, 6), num_init_features=64, bn_size=4,
+                                 drop_rate=0, num_classes=args.multi_channel * 2)
         self.classifier = self.backbone.classifier
         self.tanh = nn.Tanh()
         self.visualize = False
@@ -24,22 +24,29 @@ class CSN_backbone(nn.Module):
         out = F.relu(features, inplace=True)
         out = F.avg_pool2d(out, kernel_size=self.args.crop_size // 32, stride=1).view(features.size(0), -1)
         out = self.classifier(out)
-        # print(x.size())
-        beta = out[:, 0]
-        gamma = out[:, 1]
-        gamma += 0.5  # initial must not be <0!!!
-        images = torch.transpose(x, 0, 3)
+        single_channel = x[:, 0, :, :]
+
+
+        tiled = x.repeat(1, self.args.multi_channel // 3, 1, 1)
+        beta = out[:, 0:self.args.multi_channel]
+        gamma = out[:, self.args.multi_channel:]
+        #gamma += 0.5  # some gammas can be >0 :)
+        images = tiled
+        images = torch.transpose(images, 1, 3)
+        images = torch.transpose(images, 0, 2)
+        # print(images.size())
         images = gamma * images
         images = images + beta
-        images = torch.transpose(images, 0, 3)
+        images = torch.transpose(images, 1, 3)
+        images = torch.transpose(images, 0, 2)
         out_im = torch.tanh(images)
-
+        #print(out_im.size())
         if self.visualize and self.args.visualize_:
             plt.clf()
             fig, ((inp_, inp_hist), (out_inter, out_inter_hist), (out_, out_hist)) = plt.subplots(3, 2)
 
             vis_x = x[0].cpu().detach().numpy()
-            im   = vis_x
+            im = vis_x
             for idc, ch in enumerate(im):
                 ch += np.abs(np.min(ch))
                 ch /= np.max(ch)
@@ -88,8 +95,7 @@ class Classifier(nn.Module):
         else:
             pretrained = True
         self.classifier = DenseNet121(attention=False, pretrained=pretrained,
-                                      dilation_config=(False, False, False, False))
-
+                                      dilation_config=(False, False, False, False), no_channels=self.args.multi_channel)
     def forward(self, x):
         if self.args.CSN:
             image = self.CSN(x)
@@ -97,6 +103,3 @@ class Classifier(nn.Module):
         else:
             preds = self.classifier(x)
         return preds
-
-
-

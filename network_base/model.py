@@ -69,11 +69,11 @@ class DenseNet121(nn.Module):
     """
 
     def __init__(self, pretrained=True, attention=False, dilation_config=(False, False, False, False),
-                 drop_rate=0, num_cls=14, use_softmax=False, no_sigmoid=False, learn_feature_global_pool=False):
+                 drop_rate=0, num_cls=14, use_softmax=False, no_sigmoid=False, learn_feature_global_pool=False, no_channels = 3):
         super(DenseNet121, self).__init__()
         # conduct the official densenet
         self.densenet121 = densenet121(pretrained=pretrained, attention=attention,
-                                       dilation_config=dilation_config, drop_rate=drop_rate)
+                                       dilation_config=dilation_config, drop_rate=drop_rate, no_channels = no_channels)
         num_ftrs = self.densenet121.classifier.in_features
         # base classifier
         self.densenet121.classifier = nn.Sequential(

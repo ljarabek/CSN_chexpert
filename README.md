@@ -46,6 +46,19 @@ ROCAUC for Edema is 0.8641369047619047
 ROCAUC for Pleural Effusion is 0.8516757246376812
 
 
+Multichannel version is more stable - the results below are only after the 2nd epoch. Models are from file models_multich.py:
+
+ROCAUC for Atelectasis is 0.74498687664042
+
+ROCAUC for Cardiomegaly is 0.8731060606060607
+
+ROCAUC for Consolidation is 0.9137867647058824
+
+ROCAUC for Edema is 0.9276785714285715
+
+ROCAUC for Pleural Effusion is 0.9199501811594203
+
+
 Compared to baseline - just Densenet. All same settings, except args.CSN = False. Converges and starts overfitting after 4 epochs.:
 
 ROCAUC for Atelectasis is 0.6762204724409449
@@ -60,6 +73,7 @@ ROCAUC for Pleural Effusion is 0.8609601449275363
 
 # Images
 
+The single channel version examples:
 Densenet achieves above results with the bottom left image as input.
 The 2 numbers above the bottom right histogram are beta and gamma (shift and scale) from AdaIN repspectively. Images are binarized, since the AdaIN output is passed through a tanh before being fed into the model.
 
@@ -72,4 +86,4 @@ The 2 numbers above the bottom right histogram are beta and gamma (shift and sca
 
 # Other datasets
 
-Experiments were performed on CIFAR100 dataset. CSN was adapted to have per channel outputs (RGB). There is no improvement on the densenet baseline, even when training CSN with smaller learning rate than densenet for improved stability.
+Experiments were performed on CIFAR100 dataset. CSN was adapted to have per channel outputs (RGB). There is no improvement on the densenet baseline, even when training CSN with smaller learning rate than densenet for improved stability. Furhter experiments are being made to improve CIFAR100 performance.
