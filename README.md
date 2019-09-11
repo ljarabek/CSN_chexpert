@@ -71,6 +71,18 @@ ROCAUC for Edema is 0.8622023809523809
 
 ROCAUC for Pleural Effusion is 0.8609601449275363
 
+However, baseline from the original chexpert paper is much better (U-zeros):
+
+Atelectasis : 0.811 (0.751,0.872)
+
+Cardiomegaly : 0.840 (0.783,0.897)
+
+Consolidation : 0.932 (0.898,0.966)
+
+Edema: 0.929 (0.888,0.970)
+
+Pleural effusion: 0.931 (0.897,0.965)
+
 # Images
 
 The single channel version examples:
