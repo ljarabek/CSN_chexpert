@@ -95,7 +95,7 @@ class CSN_backbone(nn.Module):
 
             plt.savefig(self.visualization_filename +"_all.png", dpi=300)
 
-
+            plt.close("all")
 
         return out_im
 

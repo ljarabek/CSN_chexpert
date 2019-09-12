@@ -1,7 +1,7 @@
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-device_ids = [0]
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,2"
+device_ids = [0,1]
 
 from argparse import ArgumentParser
 import tensorboard
@@ -56,6 +56,7 @@ class BaseRun():
                 time.strftime('%Y%m%d-%H:%M', time.gmtime())) + "/"
         else:
             self.model_dir = self.args.save_dir + str(time.strftime('%Y%m%d-%H:%M', time.gmtime())) + "/"
+        print("model saved to : " + self.model_dir)
         self.im_dir = self.model_dir + "visualizations/"
         os.makedirs(self.im_dir, exist_ok=True)
         self.train_trainsform = self._init_train_transform()
@@ -144,7 +145,7 @@ class BaseRun():
 
     def _init_dataset(self, type, transform):
         return CXRDataset(self.args.data_root, dataset_source=self.args.dataset_source,
-                          dataset_type=type, transform=transform)
+                          dataset_type=type, transform=transform, specific_image=self.args.specific_image)
 
     def _init_train_transform(self):
         transform = transforms.Compose([
@@ -208,6 +209,7 @@ class CSNrun(BaseRun):
         for i, (images, labels, names) in enumerate(self.train_dataset):
             self.model.CSN.visualization_filename = self.im_dir + "batch{}_epoch_{}.png".format(i, self.epoch)
             self.model.CSN.visualize = False
+            #print("batch %s"%time.time())
             if i < 10 or i % 1000 == 0:
                 self.model.CSN.visualize = True
 
@@ -222,9 +224,15 @@ class CSNrun(BaseRun):
             self.optimizer.step()
 
             epoch_loss += loss
+            if i%150==0: # todo: for batch size = 32 is 75!!
+                print("saving batch_model")
+                savedir = self.model_dir
+                os.makedirs(savedir, exist_ok=True)
+                self.model_val(dirname=savedir +"epoch_{}_batch_{}/".format(self.epoch,i))
+
         return epoch_loss
 
-    def model_val(self):
+    def model_val(self, dirname=None):
         epoch_loss = 0
         self.model = self.model.eval()
         preds = list()
@@ -250,35 +258,54 @@ class CSNrun(BaseRun):
 
         truths = np.array(truths)
         preds = np.array(preds)
-
-        print(truths.shape)
-        print(preds.shape)
-        for i in range(14):
+        if dirname is None:
+            print(truths.shape)
+            print(preds.shape)
+            for i in range(14):
+                try:
+                    print("ROCAUC for {} is {}".format(self.train_dataset.dataset.classes[i],
+                                                       roc_auc_score(truths[:, i], preds[:, i], None)))
+                except:
+                    print("missing values")
+        else:
             try:
-                print("ROCAUC for {} is {}".format(self.train_dataset.dataset.classes[i],
-                                                   roc_auc_score(truths[:, i], preds[:, i], None)))
+                print(dirname)
+                os.makedirs(dirname, exist_ok=True)
             except:
-                print("missing values")
+                print("direxists for validation")
+            rows = list()
+            for i in range(14):
+                try:
+                    rows.append(str([self.train_dataset.dataset.classes[i], roc_auc_score(truths[:, i], preds[:, i], None)]) + "\n")
+                except:
+                    rows.append("missing values\n")
+            with open(dirname + "performance.txt", "w") as f:
+                print("writing perf.txt")
+                f.writelines(rows)
+            torch.save(self.model.state_dict(), dirname + "model.pt")
+            print("savedmodel")
+        print("finished_val!")
         return epoch_loss
 
 
 if __name__ == "__main__":
     parser = ArgumentParser()
 
-    parser.add_argument("--train", type=bool, default=False,
+    parser.add_argument("--train", type=bool, default=True,
                         help="if False, the model is ran on only the validation set")
+    parser.add_argument("--specific_image", default = None)
     parser.add_argument("--CSN", type=bool, default=True,
                         help="whether to use CSN or no. If False --> default densenet is used. This was our baseline")
     parser.add_argument("--multi_channel", default=15) # set to int to number of wanted channels >> MUST BE DIVISIBLE BY 3 (RGB!)
 
-    parser.add_argument("--tag", type=int, default=None,
+    parser.add_argument("--tag", type=int, default=4,
                         help="makes training per this specified tag with 50:50 positive-negative balanced sampling")
-    parser.add_argument("--visualize_", type=bool, default=True,
+    parser.add_argument("--visualize_", type=bool, default=False,
                         help="saves plots of a sample image, transformed image and histogram")  # visualize - make False for multiGPU!!
 
-    parser.add_argument("--save_dir", default="./RUNS/")
-    parser.add_argument("--batch_size", type=int, default=5)  # ~140 is the max for 4x v100
-    parser.add_argument("--epochs", type=int, default=25)
+    parser.add_argument("--save_dir", default="./RUNS_ensamble/")
+    parser.add_argument("--batch_size", type=int, default=16)  # ~140 is the max for 4x v100
+    parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--learning_rate", default=3e-4)
     parser.add_argument("--data_root", default='/raid/Medical/DX')
     parser.add_argument("--dataset_source", default='./data/2Label/', help="dir of CSVs")
@@ -290,7 +317,7 @@ if __name__ == "__main__":
     parser.add_argument('--resize', type=int, default=480)
     parser.add_argument('--crop_size', type=int, default=448)
     parser.add_argument('--load_model_path',
-                        default="./RUNS/EVEN_BESTER/best_val.pt")  # )"/home/leon/dev/CSN/RUNS/TAG_0/20190828-13:07/best_val.pt")  # "/home/leon/dev/CSN/RUNS/no_CSN/TRAINED/best_val.pt")#"/home/leon/dev/CSN/RUNS/no_CSN/20190827-13:07/best_val.pt")  # "./RUNS/BESTER_RUN_CSN/best_val.pt")  # "best_val.pt")
+                        default="./RUNS_ensamble/20190910-13:49/epoch_6_batch_2100/model.pt")#"./RUNS/EVEN_BESTER/best_val.pt")  # )"/home/leon/dev/CSN/RUNS/TAG_0/20190828-13:07/best_val.pt")  # "/home/leon/dev/CSN/RUNS/no_CSN/TRAINED/best_val.pt")#"/home/leon/dev/CSN/RUNS/no_CSN/20190827-13:07/best_val.pt")  # "./RUNS/BESTER_RUN_CSN/best_val.pt")  # "best_val.pt")
     parser.add_argument('--momentum', default=0.9)
     parser.add_argument('--weight_decay', default=5e-3)
 
@@ -300,5 +327,5 @@ if __name__ == "__main__":
     tag = args.tag
     if args.tag != None:
         args.save_dir = "./RUNS/TAG_{}/".format(str(tag))
-
+    print(args)
     cr = CSNrun(args)

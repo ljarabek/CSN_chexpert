@@ -41,11 +41,12 @@ validation_categories = {
 class CXRDataset(Dataset):
     """Base Dataset class"""
 
-    def __init__(self, root_dir, dataset_source = '/home/filip_relander/Medical/chexpert/data/2Label/', dataset_type='2Ltrain_Chex&MIMIC_Shuffle_Frontal', transform=None, additional_ch_dir=None):
+    def __init__(self, root_dir, dataset_source = '/home/filip_relander/Medical/chexpert/data/2Label/', dataset_type='2Ltrain_Chex&MIMIC_Shuffle_Frontal', transform=None, additional_ch_dir=None,
+                 specific_image = None):
         self.image_dir = root_dir
         self.transform = transform
         self.index_dir = os.path.join(dataset_source, dataset_type + '.csv')
-
+        self.specific_image = specific_image
         self.classes = pd.read_csv(self.index_dir, header=None, nrows=1).iloc[0, :].values[1:]
         self.label_index = pd.read_csv(self.index_dir, header=0)
         self.add_ch_dir = None
@@ -55,7 +56,10 @@ class CXRDataset(Dataset):
 
     def __getitem__(self, idx):
         img_path = self.label_index.iloc[idx, 0]
-        img_dir = os.path.join(self.image_dir, img_path)
+        if self.specific_image is None:
+            img_dir = os.path.join(self.image_dir, img_path)
+        else:
+            img_dir = self.specific_image
         image = Image.open(img_dir).convert('RGB')
         label = self.label_index.iloc[idx, 1:].values.astype('int')
         if self.add_ch_dir is not None:

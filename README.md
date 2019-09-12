@@ -58,20 +58,20 @@ ROCAUC for Edema is 0.9171130952380953
 
 ROCAUC for Pleural Effusion is 0.9004755434782609
 
+After training for 8 epochs and averaging top10 AUCs:
 
-Compared to baseline - just Densenet. All same settings, except args.CSN = False. Converges and starts overfitting after 4 epochs.:
+Atelectasis AUC_avg: 0.848 MIN: 0.845 MAX: 0.856
 
-ROCAUC for Atelectasis is 0.6762204724409449
+Cardiomegaly AUC_avg: 0.872 MIN: 0.867 MAX: 0.890
 
-ROCAUC for Cardiomegaly is 0.7776292335115865
+Consolidation AUC_avg: 0.933 MIN: 0.930 MAX: 0.937
 
-ROCAUC for Consolidation is 0.8880514705882354
+Edema AUC_avg: 0.908 MIN: 0.908 MAX: 0.913
 
-ROCAUC for Edema is 0.8622023809523809
+Pleural Effusion AUC_avg: 0.911 MIN: 0.909 MAX: 0.913
 
-ROCAUC for Pleural Effusion is 0.8609601449275363
 
-However, baseline from the original chexpert paper is much better (U-zeros):
+Compared to baseline - just Densenet - from chexpert paper (U-zeros):
 
 Atelectasis : 0.811 (0.751,0.872)
 
