@@ -26,21 +26,21 @@ class CSN_backbone(nn.Module):
         out = self.classifier(out)
         single_channel = x[:, 0, :, :]
 
-
         tiled = x.repeat(1, self.args.multi_channel // 3, 1, 1)
         beta = out[:, 0:self.args.multi_channel]
         gamma = out[:, self.args.multi_channel:]
-        #gamma += 0.5  # some gammas can be >0 :)
+        # gamma += 0.5  # some gammas can be >0 :)
         images = tiled
         images = torch.transpose(images, 1, 3)
-        images = torch.transpose(images, 0, 2)
+        images = torch.transpose(images, 0,
+                                 2)  ## TODO: is this broken ?? => are really gammas and betas applied to the corresponding images??
         # print(images.size())
         images = gamma * images
         images = images + beta
         images = torch.transpose(images, 1, 3)
         images = torch.transpose(images, 0, 2)
         out_im = torch.tanh(images)
-        #print(out_im.size())
+        # print(out_im.size())
         if self.visualize and self.args.visualize_:
             plt.clf()
             fig, ((inp_, inp_hist), (out_inter, out_inter_hist), (out_, out_hist)) = plt.subplots(3, 2)
@@ -75,25 +75,25 @@ class CSN_backbone(nn.Module):
                 ch /= np.max(ch)
                 im_out[idc] = ch
 
-            #out_.imshow(np.moveaxis(im_out, 0, -1))
-            indx = np.random.randint(0,im_out.shape[0]-1)
+            # out_.imshow(np.moveaxis(im_out, 0, -1))
+            indx = np.random.randint(0, im_out.shape[0] - 1)
             out_.imshow(np.array(im_out[indx]), cmap="Greys")
-            out_.set_title("wind %s"%indx)
+            out_.set_title("wind %s" % indx)
 
             out_hist.hist(np.ravel(out_im[0].cpu().detach().numpy()), bins=30)
-            out_hist.set_title(str([out[0,indx].cpu().detach(), out[0,indx +self.args.multi_channel].cpu().detach()]))
+            out_hist.set_title(
+                str([out[0, indx].cpu().detach(), out[0, indx + self.args.multi_channel].cpu().detach()]))
             plt.savefig(self.visualization_filename, dpi=300)
 
-
-            fig, plots  =plt.subplots(3,5)
+            fig, plots = plt.subplots(3, 5)
 
             for idp, row in enumerate(plots):
                 for idr, plot in enumerate(row):
-                    indx  = idp*5 + idr
+                    indx = idp * 5 + idr
                     plot.imshow(np.array(im_out[indx]), cmap="Greys")
                     plot.set_title("window %s" % indx)
 
-            plt.savefig(self.visualization_filename +"_all.png", dpi=300)
+            plt.savefig(self.visualization_filename + "_all.png", dpi=300)
 
             plt.close("all")
 
@@ -111,6 +111,7 @@ class Classifier(nn.Module):
             pretrained = True
         self.classifier = DenseNet121(attention=False, pretrained=pretrained,
                                       dilation_config=(False, False, False, False), no_channels=self.args.multi_channel)
+
     def forward(self, x):
         if self.args.CSN:
             image = self.CSN(x)

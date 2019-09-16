@@ -73,7 +73,7 @@ class CXRDataset(Dataset):
         if self.add_ch_dir is not None:
             add_ch = self.transform(add_ch)
             return image, label, img_path, add_ch
-
+        #print(label[4])
         return image, label, img_path
 
     def __len__(self):

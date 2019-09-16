@@ -1,7 +1,7 @@
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,2"
-device_ids = [0,1]
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
+device_ids = [0, 1, 2, 3]
 
 from argparse import ArgumentParser
 import tensorboard
@@ -103,8 +103,9 @@ class BaseRun():
 
             modellol.load_state_dict(new_state_dict)
             print("loaded model!!")
-        except:
+        except Exception as e:
             print("loading model failed")
+            print(e)
         modellol.to(device)
         if self.args.train:
             modellol = MyDataParallel(modellol, device_ids=device_ids)
@@ -125,6 +126,7 @@ class BaseRun():
         return optimizer
 
     def _init_wBCE(self):
+        print("WBCE_loss")
         return WeightBCELoss()  # .cuda()
 
     def _init_BCE(self):
@@ -209,7 +211,7 @@ class CSNrun(BaseRun):
         for i, (images, labels, names) in enumerate(self.train_dataset):
             self.model.CSN.visualization_filename = self.im_dir + "batch{}_epoch_{}.png".format(i, self.epoch)
             self.model.CSN.visualize = False
-            #print("batch %s"%time.time())
+            # print("batch %s"%time.time())
             if i < 10 or i % 1000 == 0:
                 self.model.CSN.visualize = True
 
@@ -219,16 +221,15 @@ class CSNrun(BaseRun):
             otpt = self.model(inp)
 
             loss = self.criterion(otpt, labels)
-
             loss.backward()
             self.optimizer.step()
-
+            print(loss)
             epoch_loss += loss
-            if i%150==0: # todo: for batch size = 32 is 75!!
+            if i % 100 == 0:  # todo: for batch size = 32 is 75!!
                 print("saving batch_model")
                 savedir = self.model_dir
                 os.makedirs(savedir, exist_ok=True)
-                self.model_val(dirname=savedir +"epoch_{}_batch_{}/".format(self.epoch,i))
+                self.model_val(dirname=savedir + "epoch_{}_batch_{}/".format(self.epoch, i))
 
         return epoch_loss
 
@@ -276,7 +277,8 @@ class CSNrun(BaseRun):
             rows = list()
             for i in range(14):
                 try:
-                    rows.append(str([self.train_dataset.dataset.classes[i], roc_auc_score(truths[:, i], preds[:, i], None)]) + "\n")
+                    rows.append(str(
+                        [self.train_dataset.dataset.classes[i], roc_auc_score(truths[:, i], preds[:, i], None)]) + "\n")
                 except:
                     rows.append("missing values\n")
             with open(dirname + "performance.txt", "w") as f:
@@ -293,18 +295,19 @@ if __name__ == "__main__":
 
     parser.add_argument("--train", type=bool, default=True,
                         help="if False, the model is ran on only the validation set")
-    parser.add_argument("--specific_image", default = None)
+    parser.add_argument("--specific_image", default=None)
     parser.add_argument("--CSN", type=bool, default=True,
                         help="whether to use CSN or no. If False --> default densenet is used. This was our baseline")
-    parser.add_argument("--multi_channel", default=15) # set to int to number of wanted channels >> MUST BE DIVISIBLE BY 3 (RGB!)
+    parser.add_argument("--multi_channel", default=15,
+                        help="must be divisible by 3!")  # set to int to number of wanted channels >> MUST BE DIVISIBLE BY 3 (RGB!)
 
-    parser.add_argument("--tag", type=int, default=4,
+    parser.add_argument("--tag", type=int, default=None,
                         help="makes training per this specified tag with 50:50 positive-negative balanced sampling")
     parser.add_argument("--visualize_", type=bool, default=False,
                         help="saves plots of a sample image, transformed image and histogram")  # visualize - make False for multiGPU!!
 
-    parser.add_argument("--save_dir", default="./RUNS_ensamble/")
-    parser.add_argument("--batch_size", type=int, default=16)  # ~140 is the max for 4x v100
+    parser.add_argument("--save_dir", default="./RUNS_ensamble_broken/")
+    parser.add_argument("--batch_size", type=int, default=32, help="other size than 32 breaks training?")  # TODO: why?
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--learning_rate", default=3e-4)
     parser.add_argument("--data_root", default='/raid/Medical/DX')
@@ -317,7 +320,7 @@ if __name__ == "__main__":
     parser.add_argument('--resize', type=int, default=480)
     parser.add_argument('--crop_size', type=int, default=448)
     parser.add_argument('--load_model_path',
-                        default="./RUNS_ensamble/20190910-13:49/epoch_6_batch_2100/model.pt")#"./RUNS/EVEN_BESTER/best_val.pt")  # )"/home/leon/dev/CSN/RUNS/TAG_0/20190828-13:07/best_val.pt")  # "/home/leon/dev/CSN/RUNS/no_CSN/TRAINED/best_val.pt")#"/home/leon/dev/CSN/RUNS/no_CSN/20190827-13:07/best_val.pt")  # "./RUNS/BESTER_RUN_CSN/best_val.pt")  # "best_val.pt")
+                        default="./RUNS_ensamble/20190910-13:49/epoch_6_batch_2100/model.pt")  # "./RUNS/EVEN_BESTER/best_val.pt")  # )"/home/leon/dev/CSN/RUNS/TAG_0/20190828-13:07/best_val.pt")  # "/home/leon/dev/CSN/RUNS/no_CSN/TRAINED/best_val.pt")#"/home/leon/dev/CSN/RUNS/no_CSN/20190827-13:07/best_val.pt")  # "./RUNS/BESTER_RUN_CSN/best_val.pt")  # "best_val.pt")
     parser.add_argument('--momentum', default=0.9)
     parser.add_argument('--weight_decay', default=5e-3)
 

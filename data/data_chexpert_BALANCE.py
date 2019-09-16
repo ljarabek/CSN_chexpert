@@ -76,7 +76,7 @@ class CXRDataset_binary(Dataset):
         if self.add_ch_dir is not None:
             add_ch = self.transform(add_ch)
             return None, label, img_path, add_ch ##TODO image
-
+        #print(label[4])
         return None, label, img_path ##TODO image
 
     def __len__(self):
@@ -92,14 +92,18 @@ def sample_weights(dataset, tag,args):
         labels = np.load("labels.npy") ### TODO: CSVs are BAAD!!!
     except:
         print("labels.npy was not found, generating")
+        #labels = np.zeros(14)
         labels = list()
-        for im, label, img_path in tqdm(dataset):
+        for i in tqdm(range(len(dataset))):
+            label = dataset.label_index.iloc[i, 1:].values.astype('int')
+            #labels += np.array(label)
             labels.append(label)
-        labels = np.array(labels)
+        #labels = np.array(labels)
         np.save("labels.npy", labels)
 
-    dataset_len = labels.shape[0]
-    label_count = np.sum(labels,axis = 0)
+    dataset_len = len(dataset)
+    label_count = np.sum(labels,axis = 0) #labels#
+    #print(label_count)
     label_count_pos = label_count[tag]
     label_count_neg = dataset_len - label_count_pos
 
@@ -117,7 +121,6 @@ def sample_weights(dataset, tag,args):
 
     count = int(label_count_pos*2)
 
-
     return count, weights
 
 def balanced_dataloader(dataset, tag, args):
@@ -127,7 +130,8 @@ def balanced_dataloader(dataset, tag, args):
         :return: dataloader with balanced sampling w.r.t. tag
     """
     count, weights = sample_weights(dataset,tag,args)
-
+    print("count")
+    print(count)
     sampler = data.WeightedRandomSampler(weights=weights, num_samples=count, replacement=True)
 
     dataloader = data.DataLoader(dataset, batch_size=args.batch_size, sampler = sampler,num_workers=15, drop_last=True)
